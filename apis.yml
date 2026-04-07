@@ -8,10 +8,10 @@ description: >-
 type: Index
 image: https://kinlane-productions.s3.amazonaws.com/apis-json/apis-json-logo.jpg
 tags:
-  - Telecommunications
-  - Network
   - 5G
   - Connectivity
+  - Network
+  - Telecommunications
 url: >-
   https://raw.githubusercontent.com/api-evangelist/at-t-developer-hub/refs/heads/main/apis.yml
 created: '2025-05-02'
@@ -27,8 +27,8 @@ apis:
     humanURL: https://developer.att.com/s/
     baseURL: https://api.att.com
     tags:
-      - Network
       - 5G
+      - Network
       - Telecommunications
     properties:
       - type: Documentation
