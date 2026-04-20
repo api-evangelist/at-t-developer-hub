@@ -1,0 +1,397 @@
+vocabulary: "1.0.0"
+
+info:
+  provider: "AT&T Developer Hub"
+  description: "Unified taxonomy of AT&T CAMARA network APIs spanning device status, SIM swap detection, number verification, quality on demand, network insights, and mobility threat detection."
+  created: "2026-04-19"
+  modified: "2026-04-19"
+
+operational:
+  apis:
+    - namespace: att-sim-swap
+      name: AT&T SIM Swap API
+      version: "1.0"
+      baseUrl: https://api.att.com/camara/sim-swap/v1
+      status: active
+    - namespace: att-device-status
+      name: AT&T Device Status API
+      version: "1.0"
+      baseUrl: https://api.att.com/camara/device-status/v1
+      status: active
+    - namespace: att-number-verification
+      name: AT&T Number Verification API
+      version: "1.0"
+      baseUrl: https://api.att.com/camara/number-verification/v1
+      status: active
+    - namespace: att-qod
+      name: AT&T Quality on Demand API
+      version: "1.0"
+      baseUrl: https://api.att.com/camara/qod/v1
+      status: active
+    - namespace: att-network-insights
+      name: AT&T Network Insights API
+      version: "1.0"
+      baseUrl: https://api.att.com/network/insights/v1
+      status: active
+    - namespace: att-mtad
+      name: AT&T Mobility Threat and Anomaly Detection API
+      version: "1.0"
+      baseUrl: https://api.att.com/network/threat-detection/v1
+      status: active
+
+  resources:
+    - name: sim-swap
+      apis:
+        - att-sim-swap
+      actions:
+        - check
+        - retrieve-date
+    - name: device-connectivity
+      apis:
+        - att-device-status
+      actions:
+        - get
+    - name: device-roaming
+      apis:
+        - att-device-status
+      actions:
+        - get
+    - name: number-verification
+      apis:
+        - att-number-verification
+      actions:
+        - verify
+    - name: qod-sessions
+      apis:
+        - att-qod
+      actions:
+        - create
+        - list
+        - get
+        - delete
+    - name: network-metrics
+      apis:
+        - att-network-insights
+      actions:
+        - get
+    - name: device-threats
+      apis:
+        - att-mtad
+      actions:
+        - get
+        - subscribe
+
+  actions:
+    - name: check
+      methods:
+        - POST
+      pattern: query
+    - name: verify
+      methods:
+        - POST
+      pattern: query
+    - name: get
+      methods:
+        - GET
+        - POST
+      pattern: read
+    - name: create
+      methods:
+        - POST
+      pattern: write
+    - name: list
+      methods:
+        - GET
+      pattern: read
+    - name: delete
+      methods:
+        - DELETE
+      pattern: destructive
+    - name: subscribe
+      methods:
+        - POST
+      pattern: write
+    - name: retrieve-date
+      methods:
+        - POST
+      pattern: query
+
+  schemas:
+    security:
+      - name: SimSwapCheckRequest
+        description: Request for SIM swap detection
+        properties:
+          - phoneNumber
+          - maxAge
+      - name: SimSwapCheckResponse
+        description: SIM swap detection result
+        properties:
+          - swapped
+      - name: NumberVerificationRequest
+        description: Phone number verification request
+        properties:
+          - phoneNumber
+      - name: NumberVerificationResponse
+        description: Number verification result
+        properties:
+          - devicePhoneNumberVerified
+      - name: ThreatAssessment
+        description: Device threat assessment with risk level and indicators
+        properties:
+          - riskLevel
+          - anomalyScore
+          - threats
+    connectivity:
+      - name: DeviceConnectivityStatus
+        description: Device network connectivity state
+        properties:
+          - connectivityStatus
+          - roaming
+      - name: DeviceRoamingStatus
+        description: Device roaming information
+        properties:
+          - roaming
+          - countryCode
+          - countryName
+      - name: NetworkMetrics
+        description: Network performance metrics for a device
+        properties:
+          - networkGeneration
+          - signalStrength
+          - estimatedDownlinkThroughput
+          - estimatedLatency
+          - congestionLevel
+    qos:
+      - name: CreateSessionRequest
+        description: QoD session creation request
+        properties:
+          - device
+          - qosProfile
+          - duration
+      - name: SessionInfo
+        description: QoD session details and status
+        properties:
+          - sessionId
+          - qosProfile
+          - qosStatus
+          - expiresAt
+
+  parameters:
+    identifiers:
+      - name: phoneNumber
+        type: string
+        description: E.164 format phone number
+        apis:
+          - att-sim-swap
+          - att-device-status
+          - att-number-verification
+          - att-qod
+          - att-network-insights
+          - att-mtad
+      - name: sessionId
+        type: string
+        description: QoD session identifier
+        apis:
+          - att-qod
+    filters:
+      - name: maxAge
+        type: integer
+        description: Maximum age in hours for SIM swap lookback
+        apis:
+          - att-sim-swap
+
+  enums:
+    connectivity-status:
+      - CONNECTED_DATA
+      - CONNECTED_SMS
+      - NOT_CONNECTED
+    qos-profiles:
+      - LOW_LATENCY
+      - THROUGHPUT_S
+      - THROUGHPUT_M
+      - THROUGHPUT_L
+      - VOICE
+    qos-status:
+      - REQUESTED
+      - AVAILABLE
+      - UNAVAILABLE
+    signal-strength:
+      - EXCELLENT
+      - GOOD
+      - FAIR
+      - POOR
+    network-generation:
+      - 5G
+      - 5G_NSA
+      - 4G
+      - 3G
+    congestion-level:
+      - LOW
+      - MEDIUM
+      - HIGH
+    risk-level:
+      - LOW
+      - MEDIUM
+      - HIGH
+      - CRITICAL
+    threat-types:
+      - UNUSUAL_LOCATION
+      - ABNORMAL_DATA_USAGE
+      - KNOWN_MALWARE_TRAFFIC
+      - SIM_CLONING
+      - ROAMING_ANOMALY
+      - CALL_PATTERN_ANOMALY
+
+  authentication:
+    schemes:
+      - name: OAuth 2.0 Client Credentials
+        type: oauth2
+        flows:
+          - client_credentials
+        apis:
+          - att-sim-swap
+          - att-device-status
+          - att-number-verification
+          - att-qod
+          - att-network-insights
+          - att-mtad
+
+capability:
+  workflows:
+    - name: Network Security
+      file: capabilities/network-security.yaml
+      description: "Network-based fraud prevention and authentication using SIM Swap and Number Verification"
+      apisComposed:
+        - att-sim-swap
+        - att-number-verification
+      toolCount: 3
+      personas:
+        - Security Developer
+        - Identity Developer
+      domains:
+        - Security
+        - Authentication
+    - name: Network Performance
+      file: capabilities/network-performance.yaml
+      description: "5G connectivity monitoring and QoS optimization using Device Status and Quality on Demand"
+      apisComposed:
+        - att-device-status
+        - att-qod
+      toolCount: 6
+      personas:
+        - App Developer
+        - IoT Engineer
+      domains:
+        - Network Performance
+        - Connectivity
+
+  personas:
+    - id: security-developer
+      name: Security Developer
+      description: "Developer building fraud prevention and identity verification using network signals"
+      workflows:
+        - Network Security
+    - id: identity-developer
+      name: Identity Developer
+      description: "Developer implementing passwordless or frictionless mobile authentication"
+      workflows:
+        - Network Security
+    - id: app-developer
+      name: App Developer
+      description: "Mobile or web developer building connectivity-aware applications"
+      workflows:
+        - Network Performance
+    - id: iot-engineer
+      name: IoT Engineer
+      description: "Engineer managing IoT device connectivity and optimizing 5G performance for industrial applications"
+      workflows:
+        - Network Performance
+
+  domains:
+    - name: Security
+      description: Network-based security signals for fraud detection and identity verification
+      resources:
+        - sim-swap
+        - number-verification
+        - device-threats
+    - name: Authentication
+      description: Mobile network-based authentication without OTP
+      resources:
+        - number-verification
+    - name: Network Performance
+      description: 5G network quality monitoring and on-demand QoS enhancement
+      resources:
+        - qod-sessions
+        - network-metrics
+        - device-connectivity
+        - device-roaming
+
+  namespaces:
+    consumed:
+      - att-sim-swap
+      - att-device-status
+      - att-number-verification
+      - att-qod
+      - att-network-insights
+      - att-mtad
+    rest:
+      - namespace: att-network-security-api
+        port: 8080
+      - namespace: att-network-performance-api
+        port: 8081
+    mcp:
+      - namespace: att-network-security-mcp
+        port: 9090
+      - namespace: att-network-performance-mcp
+        port: 9091
+
+  binds:
+    - name: ATT_NETWORK_API_TOKEN
+      description: OAuth 2.0 bearer token for all AT&T CAMARA network APIs
+      workflows:
+        - Network Security
+        - Network Performance
+
+crossReference:
+  - resource: sim-swap
+    operations:
+      - checkSimSwap
+      - retrieveSimSwapDate
+    workflows:
+      - Network Security
+    personas:
+      - Security Developer
+  - resource: number-verification
+    operations:
+      - verifyPhoneNumber
+    workflows:
+      - Network Security
+    personas:
+      - Security Developer
+      - Identity Developer
+  - resource: device-connectivity
+    operations:
+      - getDeviceConnectivityStatus
+    workflows:
+      - Network Performance
+    personas:
+      - App Developer
+      - IoT Engineer
+  - resource: device-roaming
+    operations:
+      - getDeviceRoamingStatus
+    workflows:
+      - Network Performance
+    personas:
+      - App Developer
+  - resource: qod-sessions
+    operations:
+      - createQodSession
+      - listQodSessions
+      - getQodSession
+      - deleteQodSession
+    workflows:
+      - Network Performance
+    personas:
+      - App Developer
+      - IoT Engineer

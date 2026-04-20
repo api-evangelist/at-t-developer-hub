@@ -1,0 +1,111 @@
+naftiko: "1.0.0-alpha1"
+
+info:
+  label: "AT&T SIM Swap API"
+  description: "CAMARA-standard SIM swap detection API for checking recent SIM card changes on AT&T subscriber numbers."
+  tags:
+    - AT&T
+    - SIM Swap
+    - CAMARA
+    - Fraud Prevention
+    - Authentication
+  created: "2026-04-19"
+  modified: "2026-04-19"
+
+binds:
+  - namespace: env
+    keys:
+      ATT_NETWORK_API_TOKEN: ATT_NETWORK_API_TOKEN
+
+capability:
+  consumes:
+    - type: http
+      namespace: att-sim-swap
+      baseUri: https://api.att.com/camara/sim-swap/v1
+      description: "AT&T SIM Swap detection API"
+      authentication:
+        type: bearer
+        token: "{{ATT_NETWORK_API_TOKEN}}"
+      resources:
+        - name: sim-swap-check
+          path: /check
+          description: "SIM swap detection"
+          operations:
+            - name: check-sim-swap
+              method: POST
+              description: "Check if SIM has been swapped recently"
+              outputRawFormat: json
+              outputParameters:
+                - name: result
+                  type: object
+                  value: "$."
+              body:
+                type: json
+                data:
+                  phoneNumber: "{{tools.phoneNumber}}"
+                  maxAge: "{{tools.maxAge}}"
+        - name: sim-swap-date
+          path: /retrieve-date
+          description: "SIM swap date retrieval"
+          operations:
+            - name: retrieve-sim-swap-date
+              method: POST
+              description: "Retrieve date of most recent SIM swap"
+              outputRawFormat: json
+              outputParameters:
+                - name: result
+                  type: object
+                  value: "$."
+              body:
+                type: json
+                data:
+                  phoneNumber: "{{tools.phoneNumber}}"
+
+  exposes:
+    - type: rest
+      port: 8110
+      namespace: att-sim-swap-rest
+      resources:
+        - path: /v1/sim-swap/check
+          name: sim-swap-check
+          description: "SIM swap detection"
+          operations:
+            - method: POST
+              name: check-sim-swap
+              description: "Check if SIM has been swapped"
+              call: "att-sim-swap.check-sim-swap"
+              with:
+                phoneNumber: "rest.phoneNumber"
+                maxAge: "rest.maxAge"
+              outputParameters:
+                - type: object
+                  mapping: "$."
+
+    - type: mcp
+      port: 9110
+      namespace: att-sim-swap-mcp
+      transport: http
+      tools:
+        - name: check-sim-swap
+          description: "Check if a SIM card associated with a phone number has been swapped recently"
+          hints:
+            readOnly: true
+            idempotent: true
+          call: "att-sim-swap.check-sim-swap"
+          with:
+            phoneNumber: "tools.phoneNumber"
+            maxAge: "tools.maxAge"
+          outputParameters:
+            - type: object
+              mapping: "$."
+        - name: retrieve-sim-swap-date
+          description: "Get the date and time of the most recent SIM swap for a phone number"
+          hints:
+            readOnly: true
+            idempotent: true
+          call: "att-sim-swap.retrieve-sim-swap-date"
+          with:
+            phoneNumber: "tools.phoneNumber"
+          outputParameters:
+            - type: object
+              mapping: "$."

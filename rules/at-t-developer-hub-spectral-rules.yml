@@ -1,0 +1,254 @@
+rules:
+  # ===========================
+  # INFO / METADATA
+  # ===========================
+  info-title-pattern:
+    description: API title must start with "AT&T"
+    severity: warn
+    given: $.info.title
+    then:
+      function: pattern
+      functionOptions:
+        match: '^AT&T '
+
+  info-description-required:
+    description: API info must have a description
+    severity: error
+    given: $.info
+    then:
+      field: description
+      function: truthy
+
+  info-version-required:
+    description: API info must have a version
+    severity: error
+    given: $.info
+    then:
+      field: version
+      function: truthy
+
+  info-contact-required:
+    description: API info should have contact information
+    severity: warn
+    given: $.info
+    then:
+      field: contact
+      function: truthy
+
+  # ===========================
+  # OPENAPI VERSION
+  # ===========================
+  openapi-version-3:
+    description: Must use OpenAPI 3.0.x
+    severity: error
+    given: $.openapi
+    then:
+      function: pattern
+      functionOptions:
+        match: '^3\.0\.'
+
+  # ===========================
+  # SERVERS
+  # ===========================
+  servers-required:
+    description: At least one server must be defined
+    severity: error
+    given: $
+    then:
+      field: servers
+      function: truthy
+
+  servers-https:
+    description: Server URLs must use HTTPS
+    severity: error
+    given: $.servers[*].url
+    then:
+      function: pattern
+      functionOptions:
+        match: '^https://'
+
+  # ===========================
+  # PATHS
+  # ===========================
+  paths-kebab-case:
+    description: Path segments should use kebab-case
+    severity: warn
+    given: $.paths
+    then:
+      function: pattern
+      functionOptions:
+        match: '^(\/[a-z0-9{}\-]+)+$'
+
+  # ===========================
+  # OPERATIONS
+  # ===========================
+  operation-summary-required:
+    description: Every operation must have a summary
+    severity: error
+    given: $.paths[*][get,post,put,patch,delete]
+    then:
+      field: summary
+      function: truthy
+
+  operation-summary-att-prefix:
+    description: Summaries must start with "AT&T"
+    severity: warn
+    given: $.paths[*][get,post,put,patch,delete].summary
+    then:
+      function: pattern
+      functionOptions:
+        match: '^AT&T '
+
+  operation-description-required:
+    description: Every operation must have a description
+    severity: error
+    given: $.paths[*][get,post,put,patch,delete]
+    then:
+      field: description
+      function: truthy
+
+  operation-operationid-required:
+    description: Every operation must have an operationId
+    severity: error
+    given: $.paths[*][get,post,put,patch,delete]
+    then:
+      field: operationId
+      function: truthy
+
+  operation-operationid-camelcase:
+    description: operationId must use camelCase
+    severity: warn
+    given: $.paths[*][get,post,put,patch,delete].operationId
+    then:
+      function: pattern
+      functionOptions:
+        match: '^[a-z][a-zA-Z0-9]+$'
+
+  operation-tags-required:
+    description: Every operation must have at least one tag
+    severity: error
+    given: $.paths[*][get,post,put,patch,delete]
+    then:
+      field: tags
+      function: truthy
+
+  # ===========================
+  # CAMARA COMPLIANCE
+  # ===========================
+  camara-error-schema:
+    description: API should define an ErrorInfo schema in components for CAMARA compliance
+    severity: warn
+    given: $.components.schemas
+    then:
+      field: ErrorInfo
+      function: truthy
+
+  camara-phone-number-e164:
+    description: Phone number parameters should document E.164 format requirement
+    severity: info
+    given: $.components.schemas[*].properties.phoneNumber
+    then:
+      field: description
+      function: truthy
+
+  # ===========================
+  # PARAMETERS
+  # ===========================
+  parameter-description-required:
+    description: Every parameter must have a description
+    severity: error
+    given: $.paths[*][*].parameters[*]
+    then:
+      field: description
+      function: truthy
+
+  # ===========================
+  # RESPONSES
+  # ===========================
+  response-description-required:
+    description: Every response must have a description
+    severity: error
+    given: $.paths[*][*].responses[*]
+    then:
+      field: description
+      function: truthy
+
+  response-401-defined:
+    description: Operations using security should document 401 responses
+    severity: warn
+    given: $.paths[*][post,get,delete][?(@.security)]
+    then:
+      field: responses.401
+      function: truthy
+
+  response-429-defined:
+    description: Operations should document 429 Too Many Requests responses for rate limiting
+    severity: info
+    given: $.paths[*][post]
+    then:
+      field: responses.429
+      function: truthy
+
+  # ===========================
+  # SCHEMAS
+  # ===========================
+  schema-description-required:
+    description: Component schemas should have descriptions
+    severity: warn
+    given: $.components.schemas[*]
+    then:
+      field: description
+      function: truthy
+
+  # ===========================
+  # SECURITY
+  # ===========================
+  security-schemes-defined:
+    description: Security schemes must be defined
+    severity: error
+    given: $.components
+    then:
+      field: securitySchemes
+      function: truthy
+
+  # ===========================
+  # HTTP METHOD CONVENTIONS
+  # ===========================
+  get-no-request-body:
+    description: GET operations must not have a request body
+    severity: error
+    given: $.paths[*].get
+    then:
+      field: requestBody
+      function: falsy
+
+  post-has-request-body:
+    description: POST operations should have a request body
+    severity: warn
+    given: $.paths[*].post
+    then:
+      field: requestBody
+      function: truthy
+
+  # ===========================
+  # MICROCKS COMPATIBILITY
+  # ===========================
+  microcks-operation-extension:
+    description: Operations should include x-microcks-operation for mock server support
+    severity: info
+    given: $.paths[*][post,get,delete]
+    then:
+      field: x-microcks-operation
+      function: truthy
+
+  # ===========================
+  # GENERAL QUALITY
+  # ===========================
+  no-empty-descriptions:
+    description: Descriptions must not be empty strings
+    severity: error
+    given: $..description
+    then:
+      function: pattern
+      functionOptions:
+        match: '.+'

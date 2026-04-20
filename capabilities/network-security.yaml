@@ -1,0 +1,114 @@
+naftiko: "1.0.0-alpha1"
+
+info:
+  label: "AT&T Network Security"
+  description: "Unified network-based security capability combining SIM Swap detection, Number Verification, and Mobility Threat Detection APIs. Used by developers building fraud prevention, authentication, and security monitoring applications leveraging AT&T network signals."
+  tags:
+    - AT&T
+    - Security
+    - Fraud Prevention
+    - Authentication
+    - CAMARA
+    - 5G
+  created: "2026-04-19"
+  modified: "2026-04-19"
+
+binds:
+  - namespace: env
+    keys:
+      ATT_NETWORK_API_TOKEN: ATT_NETWORK_API_TOKEN
+
+capability:
+  consumes:
+    - import: att-sim-swap
+      location: ./shared/sim-swap-api.yaml
+    - import: att-number-verification
+      location: ./shared/number-verification-api.yaml
+
+  exposes:
+    - type: rest
+      port: 8080
+      namespace: att-network-security-api
+      description: "Unified REST API for AT&T network-based security and fraud prevention."
+      resources:
+        - path: /v1/sim-swap/check
+          name: sim-swap
+          description: "SIM swap fraud detection"
+          operations:
+            - method: POST
+              name: check-sim-swap
+              description: "Check if a SIM card has been swapped recently"
+              call: "att-sim-swap.check-sim-swap"
+              with:
+                phoneNumber: "rest.phoneNumber"
+                maxAge: "rest.maxAge"
+              outputParameters:
+                - type: object
+                  mapping: "$."
+        - path: /v1/sim-swap/date
+          name: sim-swap-date
+          description: "SIM swap date retrieval"
+          operations:
+            - method: POST
+              name: retrieve-sim-swap-date
+              description: "Get date of most recent SIM swap"
+              call: "att-sim-swap.retrieve-sim-swap-date"
+              with:
+                phoneNumber: "rest.phoneNumber"
+              outputParameters:
+                - type: object
+                  mapping: "$."
+        - path: /v1/number-verification/verify
+          name: number-verification
+          description: "Phone number verification via network"
+          operations:
+            - method: POST
+              name: verify-phone-number
+              description: "Silently verify device phone number"
+              call: "att-number-verification.verify-phone-number"
+              with:
+                phoneNumber: "rest.phoneNumber"
+              outputParameters:
+                - type: object
+                  mapping: "$."
+
+    - type: mcp
+      port: 9090
+      namespace: att-network-security-mcp
+      transport: http
+      description: "MCP server for AI-assisted AT&T network security and fraud prevention operations."
+      tools:
+        - name: sim-swap-check
+          description: "Check if an AT&T subscriber's SIM card has been swapped recently to detect fraud"
+          hints:
+            readOnly: true
+            idempotent: true
+          call: "att-sim-swap.check-sim-swap"
+          with:
+            phoneNumber: "tools.phoneNumber"
+            maxAge: "tools.maxAge"
+          outputParameters:
+            - type: object
+              mapping: "$."
+        - name: sim-swap-get-date
+          description: "Get the exact date and time of the most recent SIM swap for a phone number"
+          hints:
+            readOnly: true
+            idempotent: true
+          call: "att-sim-swap.retrieve-sim-swap-date"
+          with:
+            phoneNumber: "tools.phoneNumber"
+          outputParameters:
+            - type: object
+              mapping: "$."
+        - name: number-verify
+          description: "Silently verify that a mobile device is associated with a phone number using the AT&T network"
+          hints:
+            readOnly: true
+            idempotent: true
+          call: "att-number-verification.verify-phone-number"
+          with:
+            phoneNumber: "tools.phoneNumber"
+          outputParameters:
+            - type: object
+              mapping: "$."

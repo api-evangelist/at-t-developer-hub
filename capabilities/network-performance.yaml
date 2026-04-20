@@ -1,0 +1,177 @@
+naftiko: "1.0.0-alpha1"
+
+info:
+  label: "AT&T Network Performance"
+  description: "Unified network performance capability combining Device Status, Network Insights, and Quality on Demand APIs. Used by developers building connectivity-aware applications, real-time streaming platforms, and IoT systems requiring AT&T 5G performance optimization."
+  tags:
+    - AT&T
+    - 5G
+    - Quality of Service
+    - Device Status
+    - Network Performance
+    - CAMARA
+  created: "2026-04-19"
+  modified: "2026-04-19"
+
+binds:
+  - namespace: env
+    keys:
+      ATT_NETWORK_API_TOKEN: ATT_NETWORK_API_TOKEN
+
+capability:
+  consumes:
+    - import: att-device-status
+      location: ./shared/device-status-api.yaml
+    - import: att-qod
+      location: ./shared/quality-on-demand-api.yaml
+
+  exposes:
+    - type: rest
+      port: 8081
+      namespace: att-network-performance-api
+      description: "Unified REST API for AT&T 5G network performance and device connectivity management."
+      resources:
+        - path: /v1/devices/connectivity
+          name: device-connectivity
+          description: "Device connectivity status"
+          operations:
+            - method: POST
+              name: check-connectivity
+              description: "Check device connectivity and network connection type"
+              call: "att-device-status.get-connectivity-status"
+              with:
+                phoneNumber: "rest.phoneNumber"
+              outputParameters:
+                - type: object
+                  mapping: "$."
+        - path: /v1/devices/roaming
+          name: device-roaming
+          description: "Device roaming status"
+          operations:
+            - method: POST
+              name: check-roaming
+              description: "Check if device is roaming"
+              call: "att-device-status.get-roaming-status"
+              with:
+                phoneNumber: "rest.phoneNumber"
+              outputParameters:
+                - type: object
+                  mapping: "$."
+        - path: /v1/qod/sessions
+          name: qod-sessions
+          description: "Quality on Demand session management"
+          operations:
+            - method: POST
+              name: create-qod-session
+              description: "Request enhanced QoS for a device"
+              call: "att-qod.create-session"
+              with:
+                phoneNumber: "rest.phoneNumber"
+                qosProfile: "rest.qosProfile"
+                duration: "rest.duration"
+              outputParameters:
+                - type: object
+                  mapping: "$."
+            - method: GET
+              name: list-qod-sessions
+              description: "List active QoD sessions"
+              call: "att-qod.list-sessions"
+              outputParameters:
+                - type: object
+                  mapping: "$."
+        - path: /v1/qod/sessions/{sessionId}
+          name: qod-session-detail
+          description: "Individual QoD session"
+          operations:
+            - method: GET
+              name: get-qod-session
+              description: "Get QoD session status"
+              call: "att-qod.get-session"
+              with:
+                sessionId: "rest.sessionId"
+              outputParameters:
+                - type: object
+                  mapping: "$."
+            - method: DELETE
+              name: delete-qod-session
+              description: "Terminate QoD session"
+              call: "att-qod.delete-session"
+              with:
+                sessionId: "rest.sessionId"
+              outputParameters:
+                - type: object
+                  mapping: "$."
+
+    - type: mcp
+      port: 9091
+      namespace: att-network-performance-mcp
+      transport: http
+      description: "MCP server for AI-assisted AT&T network performance monitoring and QoS management."
+      tools:
+        - name: device-check-connectivity
+          description: "Check if an AT&T subscriber device is connected to the network and get connection type (4G/5G)"
+          hints:
+            readOnly: true
+            idempotent: true
+          call: "att-device-status.get-connectivity-status"
+          with:
+            phoneNumber: "tools.phoneNumber"
+          outputParameters:
+            - type: object
+              mapping: "$."
+        - name: device-check-roaming
+          description: "Check if an AT&T subscriber device is roaming on a partner network and get location"
+          hints:
+            readOnly: true
+            idempotent: true
+          call: "att-device-status.get-roaming-status"
+          with:
+            phoneNumber: "tools.phoneNumber"
+          outputParameters:
+            - type: object
+              mapping: "$."
+        - name: qod-create-session
+          description: "Create a 5G Quality on Demand session to enhance throughput or reduce latency for a device application"
+          hints:
+            readOnly: false
+            destructive: false
+          call: "att-qod.create-session"
+          with:
+            phoneNumber: "tools.phoneNumber"
+            qosProfile: "tools.qosProfile"
+            duration: "tools.duration"
+          outputParameters:
+            - type: object
+              mapping: "$."
+        - name: qod-list-sessions
+          description: "List active Quality on Demand sessions for the application"
+          hints:
+            readOnly: true
+            idempotent: true
+          call: "att-qod.list-sessions"
+          outputParameters:
+            - type: object
+              mapping: "$."
+        - name: qod-get-session
+          description: "Get the current status of a Quality on Demand session"
+          hints:
+            readOnly: true
+            idempotent: true
+          call: "att-qod.get-session"
+          with:
+            sessionId: "tools.sessionId"
+          outputParameters:
+            - type: object
+              mapping: "$."
+        - name: qod-terminate-session
+          description: "Terminate an active Quality on Demand session and restore normal network quality"
+          hints:
+            readOnly: false
+            destructive: true
+            idempotent: true
+          call: "att-qod.delete-session"
+          with:
+            sessionId: "tools.sessionId"
+          outputParameters:
+            - type: object
+              mapping: "$."
