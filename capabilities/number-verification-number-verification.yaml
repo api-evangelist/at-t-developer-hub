@@ -1,0 +1,80 @@
+naftiko: 1.0.0-alpha2
+info:
+  label: AT&T Number Verification API — Number Verification
+  description: 'AT&T Number Verification API — Number Verification. 1 operations. Lead operation: AT&T Verify Phone Number.
+    Self-contained Naftiko capability covering one At T Developer Hub business surface.'
+  tags:
+  - At T Developer Hub
+  - Number Verification
+  created: '2026-05-19'
+  modified: '2026-05-19'
+binds:
+- namespace: env
+  keys:
+    AT_T_DEVELOPER_HUB_API_KEY: AT_T_DEVELOPER_HUB_API_KEY
+capability:
+  consumes:
+  - type: http
+    namespace: number-verification-number-verification
+    baseUri: https://api.att.com/camara/number-verification/v1
+    description: AT&T Number Verification API — Number Verification business capability. Self-contained, no shared references.
+    resources:
+    - name: verify
+      path: /verify
+      operations:
+      - name: verifyphonenumber
+        method: POST
+        description: AT&T Verify Phone Number
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+        inputParameters:
+        - name: body
+          in: body
+          type: object
+          description: Request body (JSON).
+          required: true
+    authentication:
+      type: bearer
+      token: '{{env.AT_T_DEVELOPER_HUB_API_KEY}}'
+  exposes:
+  - type: rest
+    namespace: number-verification-number-verification-rest
+    port: 8080
+    description: REST adapter for AT&T Number Verification API — Number Verification. One Spectral-compliant resource per
+      consumed operation, prefixed with /v1.
+    resources:
+    - path: /v1/verify
+      name: verify
+      description: REST surface for verify.
+      operations:
+      - method: POST
+        name: verifyphonenumber
+        description: AT&T Verify Phone Number
+        call: number-verification-number-verification.verifyphonenumber
+        with:
+          body: rest.body
+        outputParameters:
+        - type: object
+          mapping: $.
+  - type: mcp
+    namespace: number-verification-number-verification-mcp
+    port: 9090
+    transport: http
+    description: MCP adapter for AT&T Number Verification API — Number Verification. One tool per consumed operation, routed
+      inline through this capability's consumes block.
+    tools:
+    - name: at-t-verify-phone-number
+      description: AT&T Verify Phone Number
+      hints:
+        readOnly: false
+        destructive: false
+        idempotent: false
+      call: number-verification-number-verification.verifyphonenumber
+      with:
+        body: tools.body
+      outputParameters:
+      - type: object
+        mapping: $.

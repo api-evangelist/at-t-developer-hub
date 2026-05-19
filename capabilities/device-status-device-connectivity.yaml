@@ -1,0 +1,80 @@
+naftiko: 1.0.0-alpha2
+info:
+  label: AT&T Device Status API — Device Connectivity
+  description: 'AT&T Device Status API — Device Connectivity. 1 operations. Lead operation: AT&T Get Device Connectivity Status.
+    Self-contained Naftiko capability covering one At T Developer Hub business surface.'
+  tags:
+  - At T Developer Hub
+  - Device Connectivity
+  created: '2026-05-19'
+  modified: '2026-05-19'
+binds:
+- namespace: env
+  keys:
+    AT_T_DEVELOPER_HUB_API_KEY: AT_T_DEVELOPER_HUB_API_KEY
+capability:
+  consumes:
+  - type: http
+    namespace: device-status-device-connectivity
+    baseUri: https://api.att.com/camara/device-status/v1
+    description: AT&T Device Status API — Device Connectivity business capability. Self-contained, no shared references.
+    resources:
+    - name: connectivity
+      path: /connectivity
+      operations:
+      - name: getdeviceconnectivitystatus
+        method: POST
+        description: AT&T Get Device Connectivity Status
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+        inputParameters:
+        - name: body
+          in: body
+          type: object
+          description: Request body (JSON).
+          required: true
+    authentication:
+      type: bearer
+      token: '{{env.AT_T_DEVELOPER_HUB_API_KEY}}'
+  exposes:
+  - type: rest
+    namespace: device-status-device-connectivity-rest
+    port: 8080
+    description: REST adapter for AT&T Device Status API — Device Connectivity. One Spectral-compliant resource per consumed
+      operation, prefixed with /v1.
+    resources:
+    - path: /v1/connectivity
+      name: connectivity
+      description: REST surface for connectivity.
+      operations:
+      - method: POST
+        name: getdeviceconnectivitystatus
+        description: AT&T Get Device Connectivity Status
+        call: device-status-device-connectivity.getdeviceconnectivitystatus
+        with:
+          body: rest.body
+        outputParameters:
+        - type: object
+          mapping: $.
+  - type: mcp
+    namespace: device-status-device-connectivity-mcp
+    port: 9090
+    transport: http
+    description: MCP adapter for AT&T Device Status API — Device Connectivity. One tool per consumed operation, routed inline
+      through this capability's consumes block.
+    tools:
+    - name: at-t-get-device-connectivity-status
+      description: AT&T Get Device Connectivity Status
+      hints:
+        readOnly: true
+        destructive: false
+        idempotent: false
+      call: device-status-device-connectivity.getdeviceconnectivitystatus
+      with:
+        body: tools.body
+      outputParameters:
+      - type: object
+        mapping: $.

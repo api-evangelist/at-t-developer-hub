@@ -1,0 +1,81 @@
+naftiko: 1.0.0-alpha2
+info:
+  label: AT&T Mobility Threat and Anomaly Detection API — Threat Subscriptions
+  description: 'AT&T Mobility Threat and Anomaly Detection API — Threat Subscriptions. 1 operations. Lead operation: AT&T
+    Subscribe to Threat Alerts. Self-contained Naftiko capability covering one At T Developer Hub business surface.'
+  tags:
+  - At T Developer Hub
+  - Threat Subscriptions
+  created: '2026-05-19'
+  modified: '2026-05-19'
+binds:
+- namespace: env
+  keys:
+    AT_T_DEVELOPER_HUB_API_KEY: AT_T_DEVELOPER_HUB_API_KEY
+capability:
+  consumes:
+  - type: http
+    namespace: mobility-threat-anomaly-detection-threat-subscriptions
+    baseUri: https://api.att.com/network/threat-detection/v1
+    description: AT&T Mobility Threat and Anomaly Detection API — Threat Subscriptions business capability. Self-contained,
+      no shared references.
+    resources:
+    - name: threats-subscribe
+      path: /threats/subscribe
+      operations:
+      - name: subscribetothreatalerts
+        method: POST
+        description: AT&T Subscribe to Threat Alerts
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+        inputParameters:
+        - name: body
+          in: body
+          type: object
+          description: Request body (JSON).
+          required: true
+    authentication:
+      type: bearer
+      token: '{{env.AT_T_DEVELOPER_HUB_API_KEY}}'
+  exposes:
+  - type: rest
+    namespace: mobility-threat-anomaly-detection-threat-subscriptions-rest
+    port: 8080
+    description: REST adapter for AT&T Mobility Threat and Anomaly Detection API — Threat Subscriptions. One Spectral-compliant
+      resource per consumed operation, prefixed with /v1.
+    resources:
+    - path: /v1/threats/subscribe
+      name: threats-subscribe
+      description: REST surface for threats-subscribe.
+      operations:
+      - method: POST
+        name: subscribetothreatalerts
+        description: AT&T Subscribe to Threat Alerts
+        call: mobility-threat-anomaly-detection-threat-subscriptions.subscribetothreatalerts
+        with:
+          body: rest.body
+        outputParameters:
+        - type: object
+          mapping: $.
+  - type: mcp
+    namespace: mobility-threat-anomaly-detection-threat-subscriptions-mcp
+    port: 9090
+    transport: http
+    description: MCP adapter for AT&T Mobility Threat and Anomaly Detection API — Threat Subscriptions. One tool per consumed
+      operation, routed inline through this capability's consumes block.
+    tools:
+    - name: at-t-subscribe-threat-alerts
+      description: AT&T Subscribe to Threat Alerts
+      hints:
+        readOnly: false
+        destructive: false
+        idempotent: false
+      call: mobility-threat-anomaly-detection-threat-subscriptions.subscribetothreatalerts
+      with:
+        body: tools.body
+      outputParameters:
+      - type: object
+        mapping: $.

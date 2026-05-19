@@ -1,0 +1,81 @@
+naftiko: 1.0.0-alpha2
+info:
+  label: AT&T Mobility Threat and Anomaly Detection API — Threat Detection
+  description: 'AT&T Mobility Threat and Anomaly Detection API — Threat Detection. 1 operations. Lead operation: AT&T Get
+    Device Threat Assessment. Self-contained Naftiko capability covering one At T Developer Hub business surface.'
+  tags:
+  - At T Developer Hub
+  - Threat Detection
+  created: '2026-05-19'
+  modified: '2026-05-19'
+binds:
+- namespace: env
+  keys:
+    AT_T_DEVELOPER_HUB_API_KEY: AT_T_DEVELOPER_HUB_API_KEY
+capability:
+  consumes:
+  - type: http
+    namespace: mobility-threat-anomaly-detection-threat-detection
+    baseUri: https://api.att.com/network/threat-detection/v1
+    description: AT&T Mobility Threat and Anomaly Detection API — Threat Detection business capability. Self-contained, no
+      shared references.
+    resources:
+    - name: threats
+      path: /threats
+      operations:
+      - name: getdevicethreats
+        method: POST
+        description: AT&T Get Device Threat Assessment
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+        inputParameters:
+        - name: body
+          in: body
+          type: object
+          description: Request body (JSON).
+          required: true
+    authentication:
+      type: bearer
+      token: '{{env.AT_T_DEVELOPER_HUB_API_KEY}}'
+  exposes:
+  - type: rest
+    namespace: mobility-threat-anomaly-detection-threat-detection-rest
+    port: 8080
+    description: REST adapter for AT&T Mobility Threat and Anomaly Detection API — Threat Detection. One Spectral-compliant
+      resource per consumed operation, prefixed with /v1.
+    resources:
+    - path: /v1/threats
+      name: threats
+      description: REST surface for threats.
+      operations:
+      - method: POST
+        name: getdevicethreats
+        description: AT&T Get Device Threat Assessment
+        call: mobility-threat-anomaly-detection-threat-detection.getdevicethreats
+        with:
+          body: rest.body
+        outputParameters:
+        - type: object
+          mapping: $.
+  - type: mcp
+    namespace: mobility-threat-anomaly-detection-threat-detection-mcp
+    port: 9090
+    transport: http
+    description: MCP adapter for AT&T Mobility Threat and Anomaly Detection API — Threat Detection. One tool per consumed
+      operation, routed inline through this capability's consumes block.
+    tools:
+    - name: at-t-get-device-threat-assessment
+      description: AT&T Get Device Threat Assessment
+      hints:
+        readOnly: true
+        destructive: false
+        idempotent: false
+      call: mobility-threat-anomaly-detection-threat-detection.getdevicethreats
+      with:
+        body: tools.body
+      outputParameters:
+      - type: object
+        mapping: $.
