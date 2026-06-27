@@ -9,14 +9,14 @@ type: Index
 image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/apis-json-logo.jpg
 tags:
   - Fortune 100
-- 5G
-- Network APIs
-- CAMARA
-- Connectivity
-- Telecommunications
-- Edge Computing
-- Device Status
-- SIM Swap
+  - 5G
+  - Network APIs
+  - CAMARA
+  - Connectivity
+  - Telecommunications
+  - Edge Computing
+  - Device Status
+  - SIM Swap
 url: https://raw.githubusercontent.com/api-evangelist/at-t-developer-hub/refs/heads/main/apis.yml
 created: '2025-05-02'
 modified: '2026-05-19'
@@ -40,7 +40,7 @@ apis:
     url: https://devex-web.att.com/developer-hub/docs/network-api-accelerator-program
   - type: OpenAPI
     url: openapi/at-t-developer-hub-network-insights-api.yaml
-  - type: NaftikoCapability
+  - type: X-NaftikoCapability
     url: capabilities/network-insights-network-metrics.yaml
 - aid: at-t-developer-hub:att-mobility-threat-anomaly-detection-api
   name: AT&T Mobility Threat and Anomaly Detection API
@@ -62,9 +62,9 @@ apis:
     url: https://devex-web.att.com/developer-hub/docs/network-api-accelerator-program
   - type: OpenAPI
     url: openapi/at-t-developer-hub-mobility-threat-anomaly-detection-api.yaml
-  - type: NaftikoCapability
+  - type: X-NaftikoCapability
     url: capabilities/mobility-threat-anomaly-detection-threat-detection.yaml
-  - type: NaftikoCapability
+  - type: X-NaftikoCapability
     url: capabilities/mobility-threat-anomaly-detection-threat-subscriptions.yaml
 - aid: at-t-developer-hub:att-sim-swap-api
   name: AT&T SIM Swap API
@@ -86,7 +86,7 @@ apis:
     url: https://devex-web.att.com/developer-hub/docs/network-api-accelerator-program
   - type: OpenAPI
     url: openapi/at-t-developer-hub-sim-swap-api.yaml
-  - type: NaftikoCapability
+  - type: X-NaftikoCapability
     url: capabilities/sim-swap-sim-swap.yaml
 - aid: at-t-developer-hub:att-device-status-api
   name: AT&T Device Status API
@@ -108,9 +108,9 @@ apis:
     url: https://devex-web.att.com/developer-hub/docs/network-api-accelerator-program
   - type: OpenAPI
     url: openapi/at-t-developer-hub-device-status-api.yaml
-  - type: NaftikoCapability
+  - type: X-NaftikoCapability
     url: capabilities/device-status-device-connectivity.yaml
-  - type: NaftikoCapability
+  - type: X-NaftikoCapability
     url: capabilities/device-status-device-roaming.yaml
 - aid: at-t-developer-hub:att-quality-on-demand-api
   name: AT&T Quality on Demand API
@@ -133,7 +133,7 @@ apis:
     url: https://devex-web.att.com/developer-hub/docs/network-api-accelerator-program
   - type: OpenAPI
     url: openapi/at-t-developer-hub-quality-on-demand-api.yaml
-  - type: NaftikoCapability
+  - type: X-NaftikoCapability
     url: capabilities/quality-on-demand-qod-sessions.yaml
 - aid: at-t-developer-hub:att-number-verification-api
   name: AT&T Number Verification API
@@ -155,7 +155,7 @@ apis:
     url: https://devex-web.att.com/developer-hub/docs/network-api-accelerator-program
   - type: OpenAPI
     url: openapi/at-t-developer-hub-number-verification-api.yaml
-  - type: NaftikoCapability
+  - type: X-NaftikoCapability
     url: capabilities/number-verification-number-verification.yaml
 common:
 - type: Website
@@ -168,7 +168,7 @@ common:
   url: https://devex-web.att.com/developer-hub/
 - type: GettingStarted
   url: https://devex-web.att.com/developer-hub/docs/network-api-accelerator-program
-- type: SignUp
+- type: Signup
   url: https://devex-web.att.com/developer-hub/docs/network-api-accelerator-program
 - type: TermsOfService
   url: https://www.att.com/gen/general?pid=11561
